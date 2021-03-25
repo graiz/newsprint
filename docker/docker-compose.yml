@@ -1,0 +1,48 @@
+version: "3"
+services:
+  vss:
+    container_name: vss
+    image: visionect/visionect-server-v3
+    privileged: true
+    cap_add:
+      - MKNOD
+      - SYS_ADMIN
+    devices:
+      - "/dev/fuse:/dev/fuse"
+    restart: unless-stopped
+    links:
+      - "postgres_db:postgres"
+      - "redis:redis"
+    ports:
+      - 8081:8081 # admin browser
+      - 11113:11113
+      - 32991:32991 # GW RPC
+      - 11114:11114 #STORAGE
+      - 11115:11115 #NM
+      - 32989:32989 #NM RPC
+      - 5559:5559 # broker 1
+      - 5560:5560 # broker 2
+    environment:
+      - DB2_1_PORT_5432_TCP_ADDR=postgres
+      - DB2_1_PORT_5432_TCP_USER=visionect
+      - DB2_1_PORT_5432_TCP_PASS=visionect
+      - DB2_1_PORT_5432_TCP_DB=koala
+      - REDIS_ADDRESS=redis:6379
+    volumes:
+      - /dev/shm:/dev/shm
+  postgres_db:
+    container_name: pdb
+    image: postgres:12
+    restart: always
+    ports:
+      - 5453:5453
+    environment:
+      - POSTGRES_USER=visionect
+      - POSTGRES_DB=koala
+      - POSTGRES_PASSWORD=visionect
+    volumes:
+      - /var/pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:5.0.5
+    restart: always
+
