@@ -25,12 +25,16 @@ $maxPapers = count($news) -1;
 function getCounter() {
 	global $maxPapers;
 	$fp = fopen("counter.txt", "r");
-	$x= intval(fread($fp,1024));
+	if ($fp) {
+	   $x= intval(fread($fp,1024));
+	   fclose($fp);
+	} else {
+	   $x = 0;
+	}
 	if ($x > $maxPapers) { 
 		$x = 0;
 	}
-	fclose($fp);
-	if (strlen($_REQUEST['index'])) { // Override the counter if there 
+	if (!empty($_REQUEST)) { // Override the counter if there 
 	  $x = $_REQUEST['index'];	  // is a URL parameter for index
 	}
 	return($x);
@@ -46,7 +50,7 @@ function incrementCounter(int $counter){
 // fetch a paper and cache in as a JPG. Return the path to the JPG if we found it. 
 // We can pass in an offset in days to get yesterday or two days ago 
 function fetchPaper($prefix, $offset=0){
-	$pathToPdf = "https://cdn.freedomforum.org/dfp/pdf" . date(d,strtotime("-" . $offset . " days")) . "/" . $prefix . ".pdf"; 
+	$pathToPdf = "https://cdn.freedomforum.org/dfp/pdf" . date('d',strtotime("-" . $offset . " days")) . "/" . $prefix . ".pdf"; 
 	$pdffile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".pdf"; 
 	$jpgfile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".jpg";
 	$rootpath = getcwd() . "/";  
@@ -67,7 +71,7 @@ function fetchPaper($prefix, $offset=0){
 		}
 		if ($exists) { 	// convert a high-dpi image, force a white background and
 		       		// resize to 1600px wide at 95% jpg quality
-			$command = '/bin/convert -density 300 -background white -alpha remove ' . $rootpath . $pdffile . 
+			$command = 'convert -density 300 -background white -alpha remove ' . $rootpath . $pdffile . 
 				   ' -colorspace RGB -resize 1600 -quality 95 ' . $rootpath . $jpgfile;
 			exec($command, $output, $response);	
 		}
@@ -104,7 +108,7 @@ if (empty($imageresult)) {
 </style>
 </head>
 <body>
-<?if (strlen($jpgfile)> 0) {
+<?php if (empty($imageresult)) {
    echo "Newspaper File Not Found. " . $imageresult. " Will keep looking. Checking again in another hour."; 
 } else {
    echo "<img src='" . $imageresult . "' class='paper' >";
@@ -113,7 +117,7 @@ if (empty($imageresult)) {
 </div>
 </body>
 </html>
-<?
+<?php
 incrementCounter($currentIndex);
 ?>
 
