@@ -50,7 +50,7 @@ function incrementCounter(int $counter){
 // fetch a paper and cache in as a JPG. Return the path to the JPG if we found it. 
 // We can pass in an offset in days to get yesterday or two days ago 
 function fetchPaper($prefix, $offset=0){
-	$pathToPdf = "https://cdn.freedomforum.org/dfp/pdf" . date('d',strtotime("-" . $offset . " days")) . "/" . $prefix . ".pdf"; 
+	$pathToPdf = "https://cdn.freedomforum.org/dfp/pdf" . date('j',strtotime("-" . $offset . " days")) . "/" . $prefix . ".pdf"; 
 	$pdffile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".pdf"; 
 	$jpgfile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".jpg";
 	$rootpath = getcwd() . "/";  
