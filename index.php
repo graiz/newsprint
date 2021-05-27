@@ -10,13 +10,13 @@ date_default_timezone_set('Etc/GMT+4');  // adjust for server timezone
 // https://cdn.freedomforum.org/dfp/pdf16/MA_BG.pdf
 
 $news = array();
-$paper['prefix']="DC_WP";$paper['style']="width:108%;margin:-5% -5% 0px -5%";array_push($news,$paper);     // Washington Post 
-$paper['prefix']="MA_BG";$paper['style']="width:98%;margin:5px 10px 0px 8px";array_push($news,$paper);	   // Boston Globe
-$paper['prefix']="NY_NYT";$paper['style']="width:99%;margin:-88px 14px 0px 3px";array_push($news,$paper);  // New York Times
-$paper['prefix']="CA_LAT";$paper['style']="width:94%;margin:-2% 0px 0px 0px";array_push($news,$paper);	   // L.A. Times
-$paper['prefix']="CAN_TS";$paper['style']="width:90%;margin:-70px 0px 0px 0px";array_push($news,$paper);   // Toronto Star
-$paper['prefix']="CA_SFC";$paper['style']="width:96%;margin:-20px 0px 0px 0px";array_push($news,$paper);   // San Fran Chronical
-
+//$paper['prefix']="WSJ";$paper['style']="width:98%;margin:-70px 0px 0px -15px";array_push($news,$paper); // WSJ -broken 2021
+$paper['prefix']="DC_WP";$paper['style']="width:108%;margin:-5% -5% 0px -5%";array_push($news,$paper);  // Washington Post
+$paper['prefix']="MA_BG";$paper['style']="width:98%;margin:5px 10px 0px 8px";array_push($news,$paper);	  // Boston Globe
+$paper['prefix']="NY_NYT";$paper['style']="width:99%;margin:-28px 14px 0px 3px";array_push($news,$paper); // New York Times
+$paper['prefix']="CA_LAT";$paper['style']="width:94%;margin:-2% 0px 0px 0px";array_push($news,$paper);  // L.A. Times
+$paper['prefix']="CAN_TS";$paper['style']="width:90%;margin:-70px 0px 0px 0px";array_push($news,$paper);// Toronto Star
+$paper['prefix']="CA_SFC";$paper['style']="width:96%;margin:-20px 0px 0px 0px";array_push($news,$paper);  // SF Chronical
 $maxPapers = count($news) -1;
 
 // Loop a counter without a DB.
@@ -52,11 +52,11 @@ function incrementCounter(int $counter){
 function fetchPaper($prefix, $offset=0){
 	$pathToPdf = "https://cdn.freedomforum.org/dfp/pdf" . date('j',strtotime("-" . $offset . " days")) . "/" . $prefix . ".pdf";
 	$pdffile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".pdf";
-	$jpgfile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".jpg";
+	$pngfile = "archive/" . $prefix . "_" . date('Ymd',strtotime("-" . $offset . " days")) . ".png";
 	$rootpath = getcwd() . "/";
 	// check if a jpg has already been created
 	// if not we start checking for the PDF and converting
-	if (!file_exists($jpgfile)){
+	if (!file_exists($pngfile)){
 		$file_headers = @get_headers($pathToPdf);
 		if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
 			$exists = false;
@@ -69,23 +69,24 @@ function fetchPaper($prefix, $offset=0){
 			$exists = true;
 			$result = file_put_contents($pdffile, $data);
 		}
-		if ($exists) { 	// convert a high-dpi image, force a white background and
-		       		// resize to 1600px wide at 95% jpg quality
-			$command = 'convert -density 300 -background white -alpha remove ' . $rootpath . $pdffile .
-				   ' -colorspace RGB -resize 1600 -quality 95 ' . $rootpath . $jpgfile;
+		if ($exists) {
+			$command =  "convert -density 300 -background white -alpha remove '" . $rootpath . $pdffile .
+				   "' -colorspace Gray -resize 1600 '" . $rootpath . $pngfile . "'";
 			exec($command, $output, $response);
 		}
 	} else {
 		 $exists = true;
 	}
 	if ($exists) {
-		return $jpgfile;
+		return $pngfile;
 	} else {
 		return false;
 	}
 }
-
 $currentIndex = getCounter();
+if (isset($_REQUEST['index'])) {
+	$currentIndex = $_REQUEST['index'];
+}
 
 
 $imageresult = fetchPaper($news[$currentIndex]['prefix'],0);  // Fetch today
@@ -103,12 +104,12 @@ if (empty($imageresult)) {
   body   { text-align:center; }
   .paper {
 	background-color:white;
- 	<?=$news[$currentIndex]['style']?>
+ 	<?php echo $news[$currentIndex]['style'] ?>
   }
 </style>
 </head>
 <body>
-<?php if (empty($imageresult)) {
+<?php if (strlen($imageresult) < 1) {
    echo "Newspaper File Not Found. " . $imageresult. " Will keep looking. Checking again in another hour.";
 } else {
    echo "<img src='" . $imageresult . "' class='paper' >";
