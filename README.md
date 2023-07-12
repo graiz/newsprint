@@ -1,8 +1,5 @@
 # newsprint
 
-![GitHub Logo](https://gregraiz.com/wp-content/uploads/2021/03/concept.png)
-
-
 Newsprint is a simple web application that will fetch the front page of a newspaper and display it on an eink display. The specific resolutions and sizes have been setup to work with a 32" eInk place & play display from Visionect but can be modified for other screen resolutions.  
 
 There are two portions to getting this up and running. The first is the application server that displays the newspaper. This code is setup to be run on a simple and low cost PHP webhost with very few dependancies.  Simply copy the PHP files into a directory on your server and you should be good to go. You will need an "archive" folder on the server and the ability to call the command line "convert" utility to resize/convert images. Most hosts should have this installed as it's fairly standard. 
