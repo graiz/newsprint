@@ -1,6 +1,6 @@
 # newsprint
 
-[The blog post and video](https://gregraiz.com/posts/i-made-an-eink-newspaper) that accompany this code give a general overview of the project. 
+[The blog post and video](https://gregraiz.com/blog/i-made-an-eink-newspaper/) that accompany this code give a general overview of the project. 
 
 Newsprint is a simple web application that will fetch the front page of a newspaper and display it on an eink display. The specific resolutions and sizes have been setup to work with a 32" eInk place & play display from Visionect but can be modified for other screen resolutions.  
 
